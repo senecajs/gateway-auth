@@ -3,6 +3,18 @@ declare function gateway_auth(this: any, options: any): {
 };
 declare namespace gateway_auth {
     var defaults: {
+        gateway: {
+            express: {
+                active: boolean;
+                token: {
+                    name: string;
+                };
+                user: {
+                    auth: boolean;
+                    require: boolean;
+                };
+            };
+        };
         debug: boolean;
     };
 }
