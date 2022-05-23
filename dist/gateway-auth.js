@@ -1,12 +1,14 @@
 "use strict";
 /* Copyright © 2021-2022 Richard Rodger, MIT License. */
 Object.defineProperty(exports, "__esModule", { value: true });
+const gubu_1 = require("gubu");
 function gateway_auth(options) {
     const seneca = this;
     this.prepare(async function () {
-        for (let gateway in options.gateways) {
-            if (options.gateway[gateway].active) {
-                await prepareGateway[gateway].call(this, options.gateway[gateway], options);
+        for (let spec in options.spec) {
+            if (options.spec[spec].active) {
+                await prepareSpec[spec]
+                    .call(this, options.spec[spec], options);
             }
         }
     });
@@ -14,20 +16,21 @@ function gateway_auth(options) {
         exports: {}
     };
 }
-const prepareGateway = {
-    express: prepareExpress,
+const prepareSpec = {
+    express_cookie: prepare_express_cookie,
 };
-async function prepareExpress(spec, options) {
+async function prepare_express_cookie(spec, _options) {
     const seneca = this;
     const root = seneca.root;
     const cookieName = spec.token.name;
     if (spec.user.auth) {
         seneca.act('sys:gateway,add:hook,hook:custom', {
             gateway: 'express',
-            action: async (custom, _json, ctx) => {
+            tag: seneca.plugin.tag,
+            action: async function expressCookieUser(custom, _json, ctx) {
                 // TODO: abstract cookie read as an option-defined function
                 const token = ctx.req.cookies[cookieName];
-                let authres = await root.post('sys:user,auth:user', { token });
+                const authres = await root.post('sys:user,auth:user', { token });
                 if (authres.ok) {
                     extendPrincipal(custom, 'user', authres.user);
                 }
@@ -36,14 +39,16 @@ async function prepareExpress(spec, options) {
     }
     if (spec.user.require) {
         seneca.act('sys:gateway,add:hook,hook:action', {
-            action: async function (_msg, ctx) {
+            gateway: 'express',
+            tag: seneca.plugin.tag,
+            action: async function expressCookieAuth(_msg, ctx) {
                 var _a, _b, _c;
                 let seneca = this;
                 // TODO: getPrincipal
                 let user = (_c = (_b = (_a = seneca === null || seneca === void 0 ? void 0 : seneca.fixedmeta) === null || _a === void 0 ? void 0 : _a.custom) === null || _b === void 0 ? void 0 : _b.principal) === null || _c === void 0 ? void 0 : _c.user;
                 if (null == user) {
                     ctx.res.sendStatus(401);
-                    return { ok: false, why: 'no-user' };
+                    return { ok: false, why: 'no-user', handler$: { done: true } };
                 }
             }
         });
@@ -56,12 +61,12 @@ function extendPrincipal(custom, key, val) {
 }
 // Default options.
 gateway_auth.defaults = {
-    gateway: {
+    spec: {
         // https://expressjs.com/
         // requires:
         // - https://www.npmjs.com/package/cookie-parser
-        express: {
-            active: false,
+        express_cookie: (0, gubu_1.Skip)({
+            active: true,
             token: {
                 name: 'seneca-auth'
             },
@@ -69,7 +74,7 @@ gateway_auth.defaults = {
                 auth: true,
                 require: true,
             }
-        },
+        }),
     },
     // When true, errors will include stack trace.
     debug: false

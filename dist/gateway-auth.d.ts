@@ -3,16 +3,9 @@ declare function gateway_auth(this: any, options: any): {
 };
 declare namespace gateway_auth {
     var defaults: {
-        gateway: {
-            express: {
-                active: boolean;
-                token: {
-                    name: string;
-                };
-                user: {
-                    auth: boolean;
-                    require: boolean;
-                };
+        spec: {
+            express_cookie: import("gubu").Node & {
+                [name: string]: any;
             };
         };
         debug: boolean;
