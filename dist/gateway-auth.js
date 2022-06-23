@@ -33,6 +33,7 @@ async function prepare_express_cookie(spec, _options) {
                 const authres = await root.post('sys:user,auth:user', { token });
                 if (authres.ok) {
                     extendPrincipal(custom, 'user', authres.user);
+                    extendPrincipal(custom, 'login', authres.login);
                 }
             }
         });

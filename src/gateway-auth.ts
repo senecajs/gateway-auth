@@ -46,6 +46,7 @@ async function prepare_express_cookie(this: any, spec: any, _options: any) {
 
         if (authres.ok) {
           extendPrincipal(custom, 'user', authres.user)
+          extendPrincipal(custom, 'login', authres.login)
         }
       }
     })
