@@ -7,9 +7,6 @@ declare namespace gateway_auth {
             express_cookie: import("gubu").Node & {
                 [name: string]: any;
             };
-            stytch: import("gubu").Node & {
-                [name: string]: any;
-            };
         };
         debug: boolean;
     };

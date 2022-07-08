@@ -31,7 +31,6 @@ function gateway_auth(this: any, options: any) {
 
 const prepareSpec: any = {
   express_cookie: prepare_express_cookie,
-  stytch: prepare_stytch,
 }
 
 
@@ -49,6 +48,8 @@ async function prepare_express_cookie(this: any, spec: any, _options: any) {
         const token = ctx.req.cookies[cookieName]
         const authres = await root.post('sys:user,auth:user', { token })
 
+        console.log('AUTH', cookieName, token, authres)
+
         if (authres.ok) {
           extendPrincipal(custom, 'user', authres.user)
           extendPrincipal(custom, 'login', authres.login)
@@ -62,47 +63,6 @@ async function prepare_express_cookie(this: any, spec: any, _options: any) {
       gateway: 'express',
       tag: seneca.plugin.tag,
       action: async function expressCookieAuth(this: any, _msg: any, ctx: any) {
-        let seneca: any = this
-        // TODO: getPrincipal
-        let user = seneca?.fixedmeta?.custom?.principal?.user
-        if (null == user) {
-          ctx.res.sendStatus(401)
-          return { ok: false, why: 'no-user', handler$: { done: true } }
-        }
-      }
-    })
-  }
-}
-
-
-// NOTE: does *not* use stytch session management
-async function prepare_stytch(this: any, spec: any, _options: any) {
-  const seneca = this
-  const root = seneca.root
-  const cookieName = spec.token.name
-
-  if (spec.user.auth) {
-    seneca.act('sys:gateway,add:hook,hook:custom', {
-      gateway: 'stytch',
-      tag: seneca.plugin.tag,
-      action: async function stytchUser(custom: any, _json: any, ctx: any) {
-
-        // TODO: abstract cookie read as an option - defined function
-        const token = ctx.req.cookies[cookieName]
-        const authres = await root.post('sys:user,auth:user', { token })
-        if (authres.ok) {
-          extendPrincipal(custom, 'user', authres.user)
-          extendPrincipal(custom, 'login', authres.login)
-        }
-      }
-    })
-  }
-
-  if (spec.user.require) {
-    seneca.act('sys:gateway,add:hook,hook:action', {
-      gateway: 'stytch',
-      tag: seneca.plugin.tag,
-      action: async function stytchCookieAuth(this: any, _msg: any, ctx: any) {
         let seneca: any = this
         // TODO: getPrincipal
         let user = seneca?.fixedmeta?.custom?.principal?.user
@@ -142,19 +102,6 @@ gateway_auth.defaults = {
         require: true,
       }
     }),
-
-    // https://github.com/senecajs/seneca-stytch-provider
-    stytch: Skip({
-      active: false,
-      token: {
-        name: 'stytch-auth'
-      },
-      user: {
-        auth: true,
-        require: true,
-      }
-    }),
-
   },
 
 
