@@ -48,8 +48,6 @@ async function prepare_express_cookie(this: any, spec: any, _options: any) {
         const token = ctx.req.cookies[cookieName]
         const authres = await root.post('sys:user,auth:user', { token })
 
-        console.log('AUTH', cookieName, token, authres)
-
         if (authres.ok) {
           extendPrincipal(custom, 'user', authres.user)
           extendPrincipal(custom, 'login', authres.login)

@@ -35,7 +35,6 @@ async function prepare_express_cookie(spec, _options) {
                 // TODO: abstract cookie read as an option-defined function
                 const token = ctx.req.cookies[cookieName];
                 const authres = await root.post('sys:user,auth:user', { token });
-                console.log('AUTH', cookieName, token, authres);
                 if (authres.ok) {
                     extendPrincipal(custom, 'user', authres.user);
                     extendPrincipal(custom, 'login', authres.login);
