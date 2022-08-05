@@ -36,20 +36,23 @@
   "engines": {
     "node": ">=12"
   },
+  "dependencies": {
+    "cookie": "^0.5.0"
+  },
   "devDependencies": {
     "@seneca/maintain": "^0.0.22",
-    "@types/jest": "^28.1.4",
+    "@types/cookie": "^0.5.1",
+    "@types/jest": "^28.1.6",
     "axios": "^0.27.2",
-    "esbuild": "^0.14.48",
+    "esbuild": "^0.14.53",
     "esbuild-jest": "^0.5.0",
     "express": "^4.18.1",
-    "jest": "^28.1.2",
+    "jest": "^28.1.3",
     "seneca-msg-test": "^3.4.0",
     "typescript": "^4.7.4"
   },
   "peerDependencies": {
-    "@seneca/gateway-express": ">=0",
-    "@seneca/gateway": ">=0",
+    "@seneca/gateway": ">=0.5",
     "@seneca/user": ">=6",
     "seneca": ">=3",
     "seneca-entity": ">=18",
