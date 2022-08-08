@@ -92,7 +92,7 @@ async function prepare_lambda_cookie(this: any, spec: any, _options: any) {
         // TODO: abstract cookie read as an option-defined function
         const cookieStr = ctx.event.headers['cookie']
 
-        console.log('AUTH cookieStr', cookieStr)
+        console.log('AUTH cookieStr', cookieStr, ctx.event.headers)
 
         if (null != cookieStr && 0 < cookieStr.length) {
           const cookies = Cookie.parse(cookieStr)
