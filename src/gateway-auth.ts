@@ -90,9 +90,9 @@ async function prepare_lambda_cookie(this: any, spec: any, _options: any) {
       tag: seneca.plugin.tag,
       action: async function lambdaCookieUser(custom: any, _json: any, ctx: any) {
         // TODO: abstract cookie read as an option-defined function
-        const cookieStr = ctx.event.headers['cookie']
+        const cookieStr = ctx.event.headers['Cookie'] || ctx.event.headers['cookie']
 
-        console.log('AUTH cookieStr', cookieStr, ctx.event.headers)
+        console.log('AUTH cookieStr', cookieStr) //, ctx.event.headers)
 
         if (null != cookieStr && 0 < cookieStr.length) {
           const cookies = Cookie.parse(cookieStr)
