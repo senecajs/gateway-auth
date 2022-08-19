@@ -50,7 +50,7 @@ async function prepare_express_cookie(this: any, spec: any, _options: any) {
       tag: seneca.plugin.tag,
       action: async function expressCookieUser(custom: any, _json: any, ctx: any) {
         // TODO: abstract cookie read as an option-defined function
-        const token = ctx.req.cookies[cookieName]
+        const token = ctx?.req?.cookies[cookieName]
         const authres = await root.post('sys:user,auth:user', { token })
 
         if (authres.ok) {
@@ -90,7 +90,8 @@ async function prepare_lambda_cookie(this: any, spec: any, _options: any) {
       tag: seneca.plugin.tag,
       action: async function lambdaCookieUser(custom: any, _json: any, ctx: any) {
         // TODO: abstract cookie read as an option-defined function
-        const cookieStr = ctx.event.headers['Cookie'] || ctx.event.headers['cookie']
+        const cookieStr = ctx?.event?.headers['Cookie'] ||
+          ctx?.event?.headers['cookie']
 
         console.log('AUTH cookieStr', cookieStr) //, ctx.event.headers)
 
