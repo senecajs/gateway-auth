@@ -1,6 +1,6 @@
 {
   "name": "@seneca/gateway-auth",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "main": "dist/gateway-auth.js",
   "type": "commonjs",
   "types": "dist/gateway-auth.d.ts",

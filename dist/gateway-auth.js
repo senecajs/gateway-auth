@@ -75,10 +75,10 @@ async function prepare_lambda_cookie(spec, _options) {
             gateway: 'lambda',
             tag: seneca.plugin.tag,
             action: async function lambdaCookieUser(custom, _json, ctx) {
-                var _a, _b;
                 // TODO: abstract cookie read as an option-defined function
-                const cookieStr = ((_a = ctx === null || ctx === void 0 ? void 0 : ctx.event) === null || _a === void 0 ? void 0 : _a.headers['Cookie']) ||
-                    ((_b = ctx === null || ctx === void 0 ? void 0 : ctx.event) === null || _b === void 0 ? void 0 : _b.headers['cookie']);
+                var _a;
+                const headers = (_a = ctx === null || ctx === void 0 ? void 0 : ctx.event) === null || _a === void 0 ? void 0 : _a.headers;
+                const cookieStr = headers ? (headers.Cookie || headers.cookie) : null;
                 console.log('AUTH cookieStr', cookieStr); //, ctx.event.headers)
                 if (null != cookieStr && 0 < cookieStr.length) {
                     const cookies = cookie_1.default.parse(cookieStr);
