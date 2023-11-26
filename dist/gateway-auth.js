@@ -65,9 +65,9 @@ async function prepare_azure_cookie(spec, _options) {
                 if (null == user) {
                     // ctx.res.sendStatus(401)
                     return {
+                        out: { ok: false, why: 'no-user' },
                         gateway$: {
                             status: 401,
-                            body: JSON.stringify({ ok: false, why: 'no-user' })
                         }
                     };
                 }
