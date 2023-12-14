@@ -43,25 +43,32 @@ async function prepare_azure_cookie(this: any, spec: any, _options: any) {
   const seneca = this
   const root = seneca.root
   const cookieName = spec.token.name
-
-/*
+  
   if (spec.user.auth) {
     seneca.act('sys:gateway,add:hook,hook:custom', {
-      gateway: 'express',
+      gateway: 'azure',
       tag: seneca.plugin.tag,
-      action: async function expressCookieUser(custom: any, _json: any, ctx: any) {
-        // TODO: abstract cookie read as an option-defined function
-        const token = ctx?.req?.cookies[cookieName]
-        const authres = await root.post('sys:user,auth:user', { token })
+      action: async function azureCookieAuth(custom: any, _json: any, ctx: any) {
+        const cookieStr = ctx.req.headers.cookie
+        
+        if (null != cookieStr && 0 < cookieStr.length) {
+          const cookies = Cookie.parse(cookieStr)
+          const token = cookies[cookieName]
 
-        if (authres.ok) {
-          extendPrincipal(custom, 'user', authres.user)
-          extendPrincipal(custom, 'login', authres.login)
+          const authres = await root.post('sys:user,auth:user', { token })
+          // console.log('AUTH authres', authres)
+
+          if (authres.ok) {
+            extendPrincipal(custom, 'user', authres.user)
+            extendPrincipal(custom, 'login', authres.login)
+          }
+          
         }
+
       }
+      
     })
   }
-*/
 
   if (spec.user.require) {
     seneca.act('sys:gateway,add:hook,hook:action', {
