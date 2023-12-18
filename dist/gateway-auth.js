@@ -15,10 +15,41 @@ function gateway_auth(options) {
                 if (!spec) {
                     seneca.fail('unknown-auth-spec', specname);
                 }
-                await spec
-                    .call(this, options.spec[specname], options);
+                await spec.call(this, options.spec[specname], options);
             }
         }
+        await this.post('sys:repl,add:cmd,default$:{}', {
+            name: 'gateway-user',
+            action: async function (spec) {
+                const delegateSpec = { ...spec };
+                let args = spec.context.seneca.util.Jsonic(spec.argstr) || [];
+                args = Array.isArray(args) ? args : [args];
+                const userref = args[0];
+                if (null == userref) {
+                    return spec.respond('ERROR: user reference missing');
+                }
+                let userEnt = spec.context.seneca.entity('sys/user');
+                let user = await userEnt.load$(userref);
+                if (null == user) {
+                    user = await userEnt.load$({ email: userref });
+                }
+                if (null == user) {
+                    user = await userEnt.load$({ handle: userref });
+                }
+                if (null == user) {
+                    return spec.respond('ERROR: user not found: ' + userref);
+                }
+                delegateSpec.argstr = 'gateway-user-' + userref + ' {} ' +
+                    JSON.stringify({
+                        custom: {
+                            principal: {
+                                user
+                            }
+                        }
+                    });
+                spec.context.cmdMap.delegate(delegateSpec);
+            }
+        });
     });
     return {
         exports: {}

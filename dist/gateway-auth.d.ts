@@ -4,15 +4,33 @@ declare function gateway_auth(this: any, options: any): {
 declare namespace gateway_auth {
     var defaults: {
         spec: {
-            express_cookie: import("gubu").Node & {
-                [name: string]: any;
-            };
-            lambda_cookie: import("gubu").Node & {
-                [name: string]: any;
-            };
-            lambda_cognito: import("gubu").Node & {
-                [name: string]: any;
-            };
+            express_cookie: import("gubu").Node<{
+                active: boolean;
+                token: {
+                    name: string;
+                };
+                user: {
+                    auth: boolean;
+                    require: boolean;
+                };
+            }>;
+            lambda_cookie: import("gubu").Node<{
+                active: boolean;
+                token: {
+                    name: string;
+                };
+                user: {
+                    auth: boolean;
+                    require: boolean;
+                };
+            }>;
+            lambda_cognito: import("gubu").Node<{
+                active: boolean;
+                user: {
+                    auth: boolean;
+                    require: boolean;
+                };
+            }>;
         };
         debug: boolean;
     };
