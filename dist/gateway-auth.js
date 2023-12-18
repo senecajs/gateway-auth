@@ -39,7 +39,8 @@ async function prepare_azure_cookie(spec, _options) {
             gateway: 'azure',
             tag: seneca.plugin.tag,
             action: async function azureCookieAuth(custom, _json, ctx) {
-                const cookieStr = ctx.req.headers.cookie;
+                var _a, _b;
+                const cookieStr = (_b = (_a = ctx.req) === null || _a === void 0 ? void 0 : _a.headers) === null || _b === void 0 ? void 0 : _b.cookie;
                 if (null != cookieStr && 0 < cookieStr.length) {
                     const cookies = cookie_1.default.parse(cookieStr);
                     const token = cookies[cookieName];
