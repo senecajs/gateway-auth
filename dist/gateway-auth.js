@@ -117,14 +117,14 @@ async function prepare_lambda_cookie(spec, _options) {
                 var _a;
                 const headers = (_a = ctx === null || ctx === void 0 ? void 0 : ctx.event) === null || _a === void 0 ? void 0 : _a.headers;
                 const cookieStr = headers ? (headers.Cookie || headers.cookie) : null;
-                console.log('AUTH cookieStr', cookieStr); //, ctx.event.headers)
+                // console.log('AUTH cookieStr', cookieStr) //, ctx.event.headers)
                 if (null != cookieStr && 0 < cookieStr.length) {
                     const cookies = cookie_1.default.parse(cookieStr);
-                    console.log('AUTH cookies', cookies);
+                    // console.log('AUTH cookies', cookies)
                     const token = cookies[cookieName];
-                    console.log('AUTH token', token);
+                    // console.log('AUTH token', token)
                     const authres = await root.post('sys:user,auth:user', { token });
-                    console.log('AUTH authres', authres);
+                    // console.log('AUTH authres', authres)
                     if (authres.ok) {
                         extendPrincipal(custom, 'user', authres.user);
                         extendPrincipal(custom, 'login', authres.login);
