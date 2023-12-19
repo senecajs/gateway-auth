@@ -18,10 +18,57 @@ function gateway_auth(this: any, options: any) {
         if (!spec) {
           seneca.fail('unknown-auth-spec', specname)
         }
-        await spec
-          .call(this, options.spec[specname], options)
+        await spec.call(this, options.spec[specname], options)
       }
     }
+
+    await this.post('sys:repl,add:cmd,default$:{}', {
+      name: 'gateway-user',
+      action: async function(spec: any) {
+        const delegateSpec = { ...spec }
+
+        let args = spec.context.seneca.util.Jsonic(spec.argstr) || []
+        args = Array.isArray(args) ? args : [args]
+
+        const userref = args[0]
+
+        if (null == userref) {
+          return spec.respond('ERROR: user reference missing')
+        }
+
+        let delegateName = 'gateway-user-' + userref
+        if (spec.context.delegate[delegateName]) {
+          return spec.context.cmdMap.delegate({
+            ...delegateSpec,
+            argstr: delegateName,
+          })
+        }
+
+        let userEnt = spec.context.seneca.root.entity('sys/user')
+        let user = await userEnt.load$(userref)
+        if (null == user) {
+          user = await userEnt.load$({ email: userref })
+        }
+        if (null == user) {
+          user = await userEnt.load$({ handle: userref })
+        }
+
+        if (null == user) {
+          return spec.respond('ERROR: user not found: ' + userref)
+        }
+
+        delegateSpec.argstr = delegateName + ' root$ {} ' +
+          JSON.stringify({
+            custom: {
+              principal: {
+                user
+              }
+            }
+          })
+
+        return spec.context.cmdMap.delegate(delegateSpec)
+      }
+    })
   })
 
 
@@ -151,7 +198,7 @@ async function prepare_lambda_cookie(this: any, spec: any, _options: any) {
 
         const headers = ctx?.event?.headers
         const cookieStr = headers ? (
-          headers.Cookie || headers.cookie          
+          headers.Cookie || headers.cookie
         ) : null
 
 
