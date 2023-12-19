@@ -36,7 +36,15 @@ function gateway_auth(this: any, options: any) {
           return spec.respond('ERROR: user reference missing')
         }
 
-        let userEnt = spec.context.seneca.entity('sys/user')
+        let delegateName = 'gateway-user-' + userref
+        if (spec.context.delegate[delegateName]) {
+          return spec.context.cmdMap.delegate({
+            ...delegateSpec,
+            argstr: delegateName,
+          })
+        }
+
+        let userEnt = spec.context.seneca.root.entity('sys/user')
         let user = await userEnt.load$(userref)
         if (null == user) {
           user = await userEnt.load$({ email: userref })
@@ -49,7 +57,7 @@ function gateway_auth(this: any, options: any) {
           return spec.respond('ERROR: user not found: ' + userref)
         }
 
-        delegateSpec.argstr = 'gateway-user-' + userref + ' {} ' +
+        delegateSpec.argstr = delegateName + ' root$ {} ' +
           JSON.stringify({
             custom: {
               principal: {
@@ -58,7 +66,7 @@ function gateway_auth(this: any, options: any) {
             }
           })
 
-        spec.context.cmdMap.delegate(delegateSpec)
+        return spec.context.cmdMap.delegate(delegateSpec)
       }
     })
   })
