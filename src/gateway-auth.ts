@@ -202,17 +202,17 @@ async function prepare_lambda_cookie(this: any, spec: any, _options: any) {
         ) : null
 
 
-        console.log('AUTH cookieStr', cookieStr) //, ctx.event.headers)
+        // console.log('AUTH cookieStr', cookieStr) //, ctx.event.headers)
 
         if (null != cookieStr && 0 < cookieStr.length) {
           const cookies = Cookie.parse(cookieStr)
-          console.log('AUTH cookies', cookies)
+          // console.log('AUTH cookies', cookies)
 
           const token = cookies[cookieName]
-          console.log('AUTH token', token)
+          // console.log('AUTH token', token)
 
           const authres = await root.post('sys:user,auth:user', { token })
-          console.log('AUTH authres', authres)
+          // console.log('AUTH authres', authres)
 
           if (authres.ok) {
             extendPrincipal(custom, 'user', authres.user)
