@@ -66,7 +66,55 @@ const prepareSpec = {
     express_cookie: prepare_express_cookie,
     lambda_cookie: prepare_lambda_cookie,
     lambda_cognito: prepare_lambda_cognito,
+    azure_cookie: prepare_azure_cookie,
 };
+async function prepare_azure_cookie(spec, _options) {
+    const seneca = this;
+    const root = seneca.root;
+    const cookieName = spec.token.name;
+    if (spec.user.auth) {
+        seneca.act('sys:gateway,add:hook,hook:custom', {
+            gateway: 'azure',
+            tag: seneca.plugin.tag,
+            action: async function azureCookieAuth(custom, _json, ctx) {
+                var _a, _b;
+                const cookieStr = (_b = (_a = ctx.req) === null || _a === void 0 ? void 0 : _a.headers) === null || _b === void 0 ? void 0 : _b.cookie;
+                if (null != cookieStr && 0 < cookieStr.length) {
+                    const cookies = cookie_1.default.parse(cookieStr);
+                    const token = cookies[cookieName];
+                    const authres = await root.post('sys:user,auth:user', { token });
+                    // console.log('AUTH authres', authres)
+                    if (authres.ok) {
+                        extendPrincipal(custom, 'user', authres.user);
+                        extendPrincipal(custom, 'login', authres.login);
+                    }
+                }
+            }
+        });
+    }
+    if (spec.user.require) {
+        seneca.act('sys:gateway,add:hook,hook:action', {
+            gateway: 'azure',
+            tag: seneca.plugin.tag,
+            action: async function azureCookieAuth(_msg, ctx) {
+                var _a, _b, _c;
+                let seneca = this;
+                // console.log(seneca.plugin)
+                // TODO: getPrincipal
+                let user = (_c = (_b = (_a = seneca === null || seneca === void 0 ? void 0 : seneca.fixedmeta) === null || _a === void 0 ? void 0 : _a.custom) === null || _b === void 0 ? void 0 : _b.principal) === null || _c === void 0 ? void 0 : _c.user;
+                if (null == user) {
+                    // ctx.res.sendStatus(401)
+                    return {
+                        out: { ok: false, why: 'no-user' },
+                        gateway$: {
+                            status: 401,
+                        }
+                    };
+                }
+            }
+        });
+    }
+}
 async function prepare_express_cookie(spec, _options) {
     const seneca = this;
     const root = seneca.root;
@@ -196,6 +244,16 @@ gateway_auth.defaults = {
         // https://expressjs.com/
         // requires:
         // - https://www.npmjs.com/package/cookie-parser
+        azure_cookie: (0, gubu_1.Skip)({
+            active: false,
+            token: {
+                name: 'seneca-auth'
+            },
+            user: {
+                auth: true,
+                require: true,
+            }
+        }),
         express_cookie: (0, gubu_1.Skip)({
             active: false,
             token: {
